@@ -1,10 +1,16 @@
 import UIKit
 import AudioToolbox
 import AVFoundation
+import Accounts
+import Social
 
 class ViewController: UIViewController
 {
+    //MARK: - Var
+    
     var mAudioPlayer: AVAudioPlayer!
+    
+    //MARK: - Override
 
     override func viewDidLoad()
     {
@@ -19,12 +25,12 @@ class ViewController: UIViewController
     
     //MARK: - Common
     
-    func didTapCommonButton()
+    private func didTapCommonButton()
     {
         playSound()
     }
     
-    func playSound()
+    private func playSound()
     {
         let audioPath = NSURL(fileURLWithPath: Bundle.main.path(forResource: "Jump", ofType: "wav")!)
         do
@@ -62,14 +68,45 @@ class ViewController: UIViewController
         playSound()
     }
     
-    //MARK: - IBAction
+    //MARK: - Twitter
     
-    @IBAction func didTapTwitter(_ sender: Any)
+    var mAccountStore = ACAccountStore()
+    var mAccount: ACAccount?
+    
+    private func selectTwitterAccount()
     {
-        didTapCommonButton()
+        let accountType = mAccountStore.accountType(withAccountTypeIdentifier: ACAccountTypeIdentifierTwitter)
         
-        print("aaa")
+        let handler: ACAccountStoreRequestAccessCompletionHandler! = {(granted:Bool, error:Error?) in
+            
+            if error != nil {
+                print("error!")
+                return
+            }
+            
+            if !granted {
+                print("error! Twitterアカウントの利用が許可されていません")
+                return
+            }
+            
+            let accounts = self.mAccountStore.accounts(with: accountType) as! [ACAccount]
+            if accounts.count == 0 {
+                print("error! 設定画面からアカウントを設定してください")
+                return
+            }
+            
+            // 取得したアカウントで処理を行う...
+            return
+        }
+        
+        mAccountStore.requestAccessToAccounts(with: accountType, options: nil, completion: handler)
+        
+        // こういう書き方もできる
+//        mAccountStore.requestAccessToAccounts(with: accountType, options: nil) { (granted:Bool, error:Error?) in return }
+    
     }
+    
+    //MARK: - IBAction
     
     @IBAction func didTapVibration(_ sender: Any)
     {
@@ -77,6 +114,13 @@ class ViewController: UIViewController
         
         AudioServicesPlaySystemSound(1003)
         AudioServicesDisposeSystemSoundID(1003)
+    }
+    
+    @IBAction func didTapTwitter(_ sender: Any)
+    {
+        didTapCommonButton()
+        
+        selectTwitterAccount();
     }
     
     //MARK: -
