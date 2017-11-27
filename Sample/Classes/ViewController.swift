@@ -95,7 +95,7 @@ class ViewController: UIViewController
                 return
             }
             
-            // 取得したアカウントで処理を行う...
+            self.showAccountSelectSheet(accounts: accounts)
             return
         }
         
@@ -103,7 +103,26 @@ class ViewController: UIViewController
         
         // こういう書き方もできる
 //        mAccountStore.requestAccessToAccounts(with: accountType, options: nil) { (granted:Bool, error:Error?) in return }
+    }
     
+    private func showAccountSelectSheet(accounts: [ACAccount])
+    {
+        let alert = UIAlertController(title: "Twitter",
+                                      message: "アカウントを選択してください",
+                                      preferredStyle: .actionSheet)
+        
+        for account in accounts
+        {
+            alert.addAction(UIAlertAction(title: account.username,
+                                          style: .default,
+                                          handler: { (action) -> Void in
+                                            print("your select account is \(account)")
+                                            self.mAccount = account
+            }))
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        self.present(alert, animated: true, completion: nil)
     }
     
     //MARK: - IBAction
